@@ -1,0 +1,95 @@
+#include <iostream>
+#include <map>
+#include <iomanip>
+#include <stack>
+#include <vector>
+#include <GLUT/GLUT.h>
+#include <cstdlib>
+#include <math.h>
+#include <ctime>
+using namespace std;
+typedef std::map<int,int> mp;
+typedef struct Node{
+    double xloc;
+    double yloc;
+    int degree;
+    int index;
+    int color=0;
+}Node;
+void myDiskDisplay(){
+    clock_t startTime,endTime;
+    int v=8000;
+    int avg_degree=64;
+    double r=sqrt(avg_degree*0.25/v);
+    vector<int> degree;
+    vector<vector<double>> vec;
+    vector<Node *> vertex;
+    vector<vector<Node *>> node;
+    glClear(GL_COLOR_BUFFER_BIT);
+    glPointSize(2.0f);
+    glBegin(GL_POINTS);
+    while (vec.size()<v) {
+        double x=rand()/double(RAND_MAX);
+        double y=rand()/double(RAND_MAX);
+        x=x-0.5;
+        y=y-0.5;
+        if (pow(x, 2)+pow(y, 2)<=pow(0.5, 2)) {
+            vector<double> vec1;
+            vec1.push_back(x);
+            vec1.push_back(y);
+            vec.push_back(vec1);
+        }
+    }
+    sort(vec.begin(), vec.end());
+    for (int i=0; i<v; i++) {
+        glVertex2d(vec[i][0], vec[i][1]);
+    }
+    glEnd();
+    for (int i=0; i<v; i++) {
+        Node *n=new Node;
+        n->index=i;
+        n->xloc=vec[i][0];
+        n->yloc=vec[i][1];
+        n->color=0;
+    }
+    glBegin(GL_LINES);
+    for (int i=0; i<v; i++) {
+        int j=i-1;
+        int k=i+1;
+        int d=0;
+        vector<Node*> temp;
+        temp.push_back(vertex[i]);
+        while (j>=0&&vertex[i]->xloc-vertex[j]->xloc<r) {
+            if (abs(vertex[i]->yloc-vertex[j]->yloc)<r) {
+                if (pow(vertex[i]->xloc-vertex[j]->xloc, 2)+pow(vertex[i]->yloc-vertex[j]->yloc, 2)<pow(r, 2)) {
+                    glColor3d(0.0, 1.0, 0.0);
+                    glVertex2d(vertex[i]->xloc, vertex[i]->yloc);
+                    glVertex2d(vertex[j]->xloc, vertex[j]->yloc);
+                    temp.push_back(vertex[j]);
+                    d+=1;
+                }
+            }
+            j--;
+        }
+        while (k<v&&vertex[k]->xloc-vertex[i]->xloc<r) {
+            if (abs(vertex[i]->yloc-vertex[k]->yloc)<r) {
+                if (pow(vec[i][0]-vec[k][0], 2)+pow(vec[i][1]-vec[k][1], 2)<pow(r, 2)) {
+                    glColor3d(0.0, 1.0, 0.0);
+                    glVertex2d(vertex[i]->xloc, vertex[i]->yloc);
+                    glVertex2d(vertex[k]->xloc, vertex[k]->yloc);
+                    temp.push_back(vertex[k]);
+                    d+=1;
+                }
+            }
+            k++;
+        }
+        node.push_back(temp);
+        degree.push_back(d);
+    }
+    glEnd();
+    glFlush();
+    startTime=clock();
+    sort_and_color(node);
+    endTime=clock();
+    cout<<"Total time : "<<(double)(endTime-startTime)/CLOCKS_PER_SEC<<"s"<<endl;
+}
