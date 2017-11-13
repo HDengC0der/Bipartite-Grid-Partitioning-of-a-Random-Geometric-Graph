@@ -1,1 +1,1 @@
-# Bipartite-Grid-Partitioning-of-a-Random-Geometric-Graph
+# Bipartite Grid Partitioning of a Random Geometric Graph
